@@ -1,29 +1,37 @@
-import Head from 'next/head';
-import Card from '../components/common/Card';
-import Button from '../components/common/Button';
+// pages/index.tsx
+import axios from "axios";
+import { useEffect, useState } from "react";
+import PropertyCard from "@/components/property/PropertyCard"; // Already created in Milestone 1
 
 export default function Home() {
-  const handleClick = () => {
-    alert('Button clicked!');
-  };
+  const [properties, setProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        // Example: API endpoint for properties
+        const response = await axios.get("http://localhost:5000/properties");
+        setProperties(response.data);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center mt-10">Loading properties...</p>;
+  }
 
   return (
-    <>
-      <Head>
-        <title>ALX Listing App</title>
-      </Head>
-      <main className="min-h-screen bg-gray-100 p-8">
-        <h1 className="text-3xl font-bold mb-6">Welcome to ALX Listing App</h1>
-
-        <Card
-          title="Sample Property"
-          description="This is a placeholder card to demonstrate the Card component."
-        />
-
-        <div className="mt-4">
-          <Button label="Book Now" onClick={handleClick} />
-        </div>
-      </main>
-    </>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+      {properties.map((property) => (
+        <PropertyCard key={property.id} property={property} />
+      ))}
+    </div>
   );
 }
